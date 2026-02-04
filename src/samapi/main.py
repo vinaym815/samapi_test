@@ -113,23 +113,23 @@ class ModelType(str, Enum):
     """
 
     vit_h = "vit_h"
-    vit_l = "vit_l"
-    vit_b = "vit_b"
+    #vit_l = "vit_l"
+    #vit_b = "vit_b"
     vit_t = "vit_t"
-    sam2_l = "sam2_l"
-    sam2_bp = "sam2_bp"
-    sam2_s = "sam2_s"
+    #sam2_l = "sam2_l"
+    #sam2_bp = "sam2_bp"
+    #sam2_s = "sam2_s"
     sam2_t = "sam2_t"
 
 
 DEFAULT_CHECKPOINT_URLS = {
     ModelType.vit_h: "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth",
-    ModelType.vit_l: "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth",
-    ModelType.vit_b: "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth",
+    #ModelType.vit_l: "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth",
+    #ModelType.vit_b: "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth",
     ModelType.vit_t: "https://github.com/ChaoningZhang/MobileSAM/raw/master/weights/mobile_sam.pt",
-    ModelType.sam2_l: "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_large.pt",
-    ModelType.sam2_bp: "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_base_plus.pt",
-    ModelType.sam2_s: "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_small.pt",
+    #ModelType.sam2_l: "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_large.pt",
+    #ModelType.sam2_bp: "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_base_plus.pt",
+    #ModelType.sam2_s: "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_small.pt",
     ModelType.sam2_t: "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_tiny.pt",
 }
 
@@ -137,36 +137,36 @@ DEFAULT_CHECKPOINT_URLS = {
 sam_model_registry = {
     "default": build_sam_vit_h,
     "vit_h": build_sam_vit_h,
-    "vit_l": build_sam_vit_l,
-    "vit_b": build_sam_vit_b,
+    #"vit_l": build_sam_vit_l,
+    #"vit_b": build_sam_vit_b,
     "vit_t": build_sam_vit_t,
-    "sam2_l": partial(build_sam2, config_file="sam2_hiera_l.yaml", device="cpu"),
-    "sam2_bp": partial(build_sam2, config_file="sam2_hiera_b+.yaml", device="cpu"),
-    "sam2_s": partial(build_sam2, config_file="sam2_hiera_s.yaml", device="cpu"),
+    #"sam2_l": partial(build_sam2, config_file="sam2_hiera_l.yaml", device="cpu"),
+    #"sam2_bp": partial(build_sam2, config_file="sam2_hiera_b+.yaml", device="cpu"),
+    #"sam2_s": partial(build_sam2, config_file="sam2_hiera_s.yaml", device="cpu"),
     "sam2_t": partial(build_sam2, config_file="sam2_hiera_t.yaml", device="cpu"),
-    "sam2_l_v": partial(
-        build_sam2_video_predictor, config_file="sam2_hiera_l.yaml", device="cpu"
-    ),
-    "sam2_bp_v": partial(
-        build_sam2_video_predictor, config_file="sam2_hiera_b+.yaml", device="cpu"
-    ),
-    "sam2_s_v": partial(
-        build_sam2_video_predictor, config_file="sam2_hiera_s.yaml", device="cpu"
-    ),
-    "sam2_t_v": partial(
-        build_sam2_video_predictor, config_file="sam2_hiera_t.yaml", device="cpu"
-    ),
+    #"sam2_l_v": partial(
+    #    build_sam2_video_predictor, config_file="sam2_hiera_l.yaml", device="cpu"
+    #),
+    #"sam2_bp_v": partial(
+    #    build_sam2_video_predictor, config_file="sam2_hiera_b+.yaml", device="cpu"
+    #),
+    #"sam2_s_v": partial(
+    #    build_sam2_video_predictor, config_file="sam2_hiera_s.yaml", device="cpu"
+    #),
+    #"sam2_t_v": partial(
+    #    build_sam2_video_predictor, config_file="sam2_hiera_t.yaml", device="cpu"
+    #),
 }
 
 sam_predictor_registry = {
     "default": SamPredictor,
     "vit_h": SamPredictor,
-    "vit_l": SamPredictor,
-    "vit_b": SamPredictor,
+    #"vit_l": SamPredictor,
+    #"vit_b": SamPredictor,
     "vit_t": SamPredictor,
-    "sam2_l": SAM2ImagePredictor,
-    "sam2_bp": SAM2ImagePredictor,
-    "sam2_s": SAM2ImagePredictor,
+    #"sam2_l": SAM2ImagePredictor,
+    #"sam2_bp": SAM2ImagePredictor,
+    #"sam2_s": SAM2ImagePredictor,
     "sam2_t": SAM2ImagePredictor,
 }
 
@@ -231,7 +231,7 @@ def _get_device() -> str:
     if device in ("cuda", "mps"):
         try:
             dummy_input = np.zeros((16, 16, 3), dtype=np.uint8)
-            SamPredictor(get_sam_model(ModelType.vit_b).to(device=device)).set_image(
+            SamPredictor(get_sam_model(ModelType.vit_t).to(device=device)).set_image(
                 dummy_input
             )
         except Exception as e:
