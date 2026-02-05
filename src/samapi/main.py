@@ -59,6 +59,7 @@ except:
 
 SAMAPI_ROOT_DIR = os.getenv("SAMAPI_ROOT_DIR", str(Path.home() / ".samapi"))
 
+SAM_MODEL_NAME = os.getenv("SAMAPI_MODEL_NAME", "sam2_t")
 
 SAMAPI_STDERR = SAMAPI_ROOT_DIR + "/samapi.stderr"
 SAMAPI_CANCEL_FILE = SAMAPI_ROOT_DIR + "/samapi.cancel"
@@ -124,12 +125,12 @@ class ModelType(str, Enum):
 
 DEFAULT_CHECKPOINT_URLS = {
     ModelType.vit_h: "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth",
-    #ModelType.vit_l: "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth",
-    #ModelType.vit_b: "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth",
+    ModelType.vit_l: "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth",
+    ModelType.vit_b: "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth",
     ModelType.vit_t: "https://github.com/ChaoningZhang/MobileSAM/raw/master/weights/mobile_sam.pt",
-    #ModelType.sam2_l: "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_large.pt",
-    #ModelType.sam2_bp: "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_base_plus.pt",
-    #ModelType.sam2_s: "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_small.pt",
+    ModelType.sam2_l: "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_large.pt",
+    ModelType.sam2_bp: "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_base_plus.pt",
+    ModelType.sam2_s: "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_small.pt",
     ModelType.sam2_t: "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_tiny.pt",
 }
 
@@ -231,7 +232,8 @@ def _get_device() -> str:
     if device in ("cuda", "mps"):
         try:
             dummy_input = np.zeros((16, 16, 3), dtype=np.uint8)
-            SamPredictor(get_sam_model(ModelType.vit_t).to(device=device)).set_image(
+            model = ModelType(SAM_MODEL_NAME)
+            SamPredictor(get_sam_model(model).to(device=device)).set_image(
                 dummy_input
             )
         except Exception as e:
@@ -283,15 +285,18 @@ def _register_default_weights():
     """
     Registers default weights.
     """
-    for model_type, checkpoint_url in DEFAULT_CHECKPOINT_URLS.items():
-        register_state_dict_from_url(model_type, checkpoint_url, f"default")
+    model = ModelType(SAM_MODEL_NAME)
+    checkpoint_url = DEFAULT_CHECKPOINT_URLS[model]
+    register_state_dict_from_url(model, checkpoint_url, "default")
+    #for model_type, checkpoint_url in DEFAULT_CHECKPOINT_URLS.items():
+    #    register_state_dict_from_url(model_type, checkpoint_url, f"default")
 
 
 # Registers default weights at startup.
 _register_default_weights()
 
 # global variables
-last_sam_type = ModelType.vit_t
+last_sam_type = ModelType(SAM_MODEL_NAME)
 last_checkpoint_url = None
 predictor = sam_predictor_registry[last_sam_type](
     get_sam_model(model_type=last_sam_type).to(device=device)
@@ -431,7 +436,7 @@ class SAMBody(BaseModel):
     SAM body.
     """
 
-    type: Optional[ModelType] = ModelType.vit_h
+    type: Optional[ModelType] = ModelType(SAM_MODEL_NAME)
     bbox: Optional[Tuple[int, int, int, int]] = Field(example=(0, 0, 0, 0))
     point_coords: Optional[Tuple[Tuple[int, int], ...]] = Field(
         example=((0, 0), (1, 0))
@@ -500,7 +505,7 @@ class SAMAutoMaskBody(BaseModel):
     SAM auto mask body.
     """
 
-    type: Optional[ModelType] = ModelType.vit_h
+    type: Optional[ModelType] = ModelType(SAM_MODEL_NAME)
     b64img: str
     points_per_side: Optional[int] = 32
     points_per_batch: int = 64
